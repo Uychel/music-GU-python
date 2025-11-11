@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pet's Home - Trang chủ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body{background:#fff8f0}
+    .navbar{background:#cfe8f3}
+    .hero{background:linear-gradient(90deg,#a6d3e5,#cfe8f3); padding:64px 0; color:#093a4b}
+    .product-card{border:1px solid #eee;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
+    .product-card img{height:160px;object-fit:cover;border-top-left-radius:12px;border-top-right-radius:12px}
+  </style>
+</head>
+<body>
+
+<!-- ===== NAVBAR DÙNG CHUNG ===== -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">🐾 Pet's Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto" id="navMenu">
+        <!-- Customer -->
+        <li class="nav-item d-none nav-home"><a class="nav-link" href="index.html">Trang chủ</a></li>
+        <li class="nav-item d-none nav-products"><a class="nav-link" href="sanpham.html">Sản phẩm</a></li>
+        <li class="nav-item d-none nav-cart"><a class="nav-link" href="giohang.html">Giỏ hàng</a></li>
+        <li class="nav-item d-none nav-myaccount"><a class="nav-link" href="donhang.html">Tài khoản của tôi</a></li>
+
+        <!-- Staff -->
+        <li class="nav-item d-none nav-pos"><a class="nav-link" href="pos.html">POS</a></li>
+        <li class="nav-item d-none nav-orders"><a class="nav-link" href="donhang.html">Quản lý Đơn hàng</a></li>
+        <li class="nav-item d-none nav-productsLookup"><a class="nav-link" href="sanpham.html">Tra cứu Sản phẩm</a></li>
+        <li class="nav-item d-none nav-customers"><a class="nav-link" href="khachhang.html">Khách hàng</a></li>
+
+        <!-- Admin -->
+        <li class="nav-item d-none nav-sales"><a class="nav-link" href="donhang.html">Bán hàng</a></li>
+        <li class="nav-item d-none nav-inventory"><a class="nav-link" href="quantri.html">Kho</a></li>
+        <li class="nav-item d-none nav-reports"><a class="nav-link" href="baocao.html">Báo cáo</a></li>
+        <li class="nav-item d-none nav-users"><a class="nav-link" href="quantri.html#users">Người dùng</a></li>
+        <li class="nav-item d-none nav-settings"><a class="nav-link" href="cauhinh.html">Cấu hình</a></li>
+
+        <!-- Login/User -->
+        <li class="nav-item" id="navLogin"><a class="nav-link" href="dangnhap.html">Đăng nhập</a></li>
+        <li class="nav-item dropdown d-none" id="navUser">
+          <a class="nav-link dropdown-toggle" href="#" id="navUserName" role="button" data-bs-toggle="dropdown">Tài khoản</a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="donhang.html">Đơn hàng của tôi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="PetShop.logout(); location.href='index.html'">Đăng xuất</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container text-center">
+    <h1 class="display-5 fw-bold">Chào mừng đến với Pet's Home</h1>
+    <p class="lead mt-2">Mua sắm vật tư, thức ăn, đồ chơi cho thú cưng dễ dàng hơn bao giờ hết!</p>
+  </div>
+</section>
+
+<!-- ===== FEATURED ===== -->
+<div class="container my-5">
+  <h3 class="text-center mb-4">Sản phẩm nổi bật</h3>
+  <div class="row g-4" id="featuredProducts"></div>
+</div>
+
+<footer class="text-center py-3 bg-warning text-white">
+  © 2025 Pet's Home. All rights reserved 🐾
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 1) Khởi tạo navbar: ẩn/hiện “Đăng nhập” theo trạng thái & vai trò
+  document.addEventListener('DOMContentLoaded', function(){
+    // Nếu bạn đã thêm hàm PetShop.initNavbar trong app.js thì gọi:
+    if (PetShop.initNavbar) PetShop.initNavbar();
+    else hydrateNavbarFallback(); // fallback nếu chưa có initNavbar
+    renderFeatured();
+  });
+
+  // Fallback khi chưa thêm initNavbar vào app.js (an toàn)
+  function hydrateNavbarFallback(){
+    const user  = PetShop.getCurrentUser?.();
+    const flags = PetShop.getUIFlags ? PetShop.getUIFlags() : { menu: ["home","products","cart","myAccount"] };
+
+    const navLogin    = document.getElementById("navLogin");
+    const navUser     = document.getElementById("navUser");
+    const navUserName = document.getElementById("navUserName");
+    if (user) {
+      navLogin?.classList.add("d-none");
+      navUser?.classList.remove("d-none");
+      if (navUserName) navUserName.textContent = user.name || user.email || "Tài khoản";
+    } else {
+      navLogin?.classList.remove("d-none");
+      navUser?.classList.add("d-none");
+    }
+    const map = {
+      home: ".nav-home", products: ".nav-products", cart: ".nav-cart", myAccount: ".nav-myaccount",
+      pos: ".nav-pos", orders: ".nav-orders", productsLookup: ".nav-productsLookup", customers: ".nav-customers",
+      sales: ".nav-sales", inventory: ".nav-inventory", reports: ".nav-reports", users: ".nav-users", settings: ".nav-settings",
+    };
+    Object.entries(map).forEach(([key, cls])=>{
+      document.querySelectorAll(cls).forEach(el=>{
+        (flags.menu||[]).includes(key) ? el.classList.remove("d-none") : el.classList.add("d-none");
+      });
+    });
+  }
+
+  // 2) Render sản phẩm nổi bật (ẩn tồn kho với customer)
+  function renderFeatured(){
+    const wrap = document.getElementById('featuredProducts');
+    const products = (getLS && getLS("products", [])) || [];
+    const flags = PetShop.getUIFlags ? PetShop.getUIFlags() : { canViewStock:false };
+    const showStock = !!flags.canViewStock;
+
+    const list = products.slice(0,4);
+    wrap.innerHTML = list.map(p => `
+      <div class="col-md-3">
+        <div class="card product-card h-100">
+          <img src="${p.img}" alt="${p.name}">
+          <div class="card-body text-center">
+            <h6 class="mb-1">${p.name}</h6>
+            <div class="text-success fw-bold">${PetShop.fmtVND(p.salePrice ?? p.price)}</div>
+            ${ showStock ? `<div class="small text-muted">Tồn: ${p.stock}</div>` : (p.stock<=0?`<div class="small text-danger">Hết hàng</div>`:``) }
+            <button class="btn btn-sm btn-success mt-2" ${p.stock<=0?'disabled':''}
+              onclick="PetShop.addToCart('${p.id}',1)">Thêm vào giỏ</button>
+          </div>
+        </div>
+      </div>
+    `).join("") || `<div class="col-12"><div class="alert alert-info text-center">Chưa có dữ liệu sản phẩm.</div></div>`;
+  }
+</script>
+</body>
+</html>

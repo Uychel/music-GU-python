@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Đăng nhập - Pet's Home</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body { background:#fff8f0; }
+    .navbar { background:#8ad1eda9; }
+    .login-box { background:#fff; padding:30px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,.1); }
+    .tab-btn { cursor:pointer; font-weight:700; }
+    .active-tab { color:#0a7a46; border-bottom:3px solid #0a7a46; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR dùng chung -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">🐾 Pet's Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto" id="navMenu">
+
+        <!-- Customer menus -->
+        <li class="nav-item d-none nav-home"><a class="nav-link" href="index.html">Trang chủ</a></li>
+        <li class="nav-item d-none nav-products"><a class="nav-link" href="sanpham.html">Sản phẩm</a></li>
+        <li class="nav-item d-none nav-cart"><a class="nav-link" href="giohang.html">Giỏ hàng</a></li>
+        <li class="nav-item d-none nav-myaccount"><a class="nav-link" href="donhang.html">Tài khoản của tôi</a></li>
+
+        <!-- Staff menus -->
+        <li class="nav-item d-none nav-pos"><a class="nav-link" href="pos.html">POS</a></li>
+        <li class="nav-item d-none nav-orders"><a class="nav-link" href="donhang.html">Quản lý Đơn hàng</a></li>
+        <li class="nav-item d-none nav-productsLookup"><a class="nav-link" href="sanpham.html">Tra cứu Sản phẩm</a></li>
+        <li class="nav-item d-none nav-customers"><a class="nav-link" href="khachhang.html">Khách hàng</a></li>
+
+        <!-- Admin menus -->
+        <li class="nav-item d-none nav-sales"><a class="nav-link" href="donhang.html">Bán hàng</a></li>
+        <li class="nav-item d-none nav-inventory"><a class="nav-link" href="quantri.html">Kho</a></li>
+        <li class="nav-item d-none nav-reports"><a class="nav-link" href="baocao.html">Báo cáo</a></li>
+        <li class="nav-item d-none nav-users"><a class="nav-link" href="quantri.html#users">Người dùng</a></li>
+        <li class="nav-item d-none nav-settings"><a class="nav-link" href="cauhinh.html">Cấu hình</a></li>
+
+        <!-- Login / User dropdown -->
+        <li class="nav-item" id="navLogin"><a class="nav-link" href="dangnhap.html">Đăng nhập</a></li>
+        <li class="nav-item dropdown d-none" id="navUser">
+          <a class="nav-link dropdown-toggle" href="#" id="navUserName" role="button" data-bs-toggle="dropdown">Tài khoản</a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="donhang.html">Đơn hàng của tôi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="PetShop.logout(); location.href='index.html';">Đăng xuất</a></li>
+          </ul>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<!-- FORM ĐĂNG NHẬP / ĐĂNG KÝ -->
+<div class="container my-5">
+  <div class="col-md-6 mx-auto login-box">
+    <div class="text-center mb-4">
+      <span id="btnLogin" class="tab-btn active-tab me-4">Đăng nhập</span>
+      <span id="btnRegister" class="tab-btn">Đăng ký</span>
+    </div>
+
+    <!-- Login -->
+    <form id="formLogin" onsubmit="return handleLogin(event)">
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" id="emailLogin" class="form-control" placeholder="nhap@email.com" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Mật khẩu</label>
+        <input type="password" id="passLogin" class="form-control" placeholder="••••" required />
+      </div>
+      <button class="btn btn-success w-100" type="submit">Đăng nhập</button>
+    </form>
+
+    <!-- Register -->
+    <form id="formRegister" style="display:none;" onsubmit="return handleRegister(event)">
+      <div class="mb-3">
+        <label class="form-label">Họ tên</label>
+        <input type="text" id="nameRegister" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" id="emailRegister" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Mật khẩu</label>
+        <input type="password" id="passRegister" class="form-control" minlength="4" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Vai trò</label>
+        <select id="roleRegister" class="form-select">
+          <option value="customer">Khách hàng</option>
+          <option value="staff">Nhân viên bán hàng</option>
+          <option value="admin">Quản trị</option>
+        </select>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">Đăng ký</button>
+    </form>
+  </div>
+</div>
+
+<footer class="text-center py-3 bg-warning text-white">
+  © 2025 Pet's Home. All rights reserved 🐾
+</footer>
+
+<!-- Scripts -->
+<script src="js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Tab switch
+  const btnLogin = document.getElementById('btnLogin');
+  const btnRegister = document.getElementById('btnRegister');
+  const formLogin = document.getElementById('formLogin');
+  const formRegister = document.getElementById('formRegister');
+
+  btnLogin.onclick = () => {
+    formLogin.style.display = 'block';
+    formRegister.style.display = 'none';
+    btnLogin.classList.add('active-tab');
+    btnRegister.classList.remove('active-tab');
+  };
+  btnRegister.onclick = () => {
+    formLogin.style.display = 'none';
+    formRegister.style.display = 'block';
+    btnRegister.classList.add('active-tab');
+    btnLogin.classList.remove('active-tab');
+  };
+
+  // Handlers
+  async function handleRegister(e){
+    e.preventDefault();
+    const name  = document.getElementById('nameRegister').value.trim();
+    const email = document.getElementById('emailRegister').value.trim().toLowerCase();
+    const pass  = document.getElementById('passRegister').value.trim();
+    const role  = document.getElementById('roleRegister').value;
+
+    if (pass.length < 4) return alert("Mật khẩu tối thiểu 4 ký tự.");
+    try {
+  const res = await fetch("../api/api_post_khachhang.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      TenKH: name,
+      SoDienThoai: "0000000000",
+      DiaChi: "Chưa cập nhật",
+      email: email,
+      password: pass
+})
+
+  });
+
+  const data = await res.json();
+  if (data.status === "success") {
+    alert("🎉 Đăng ký thành công!");
+    btnLogin.click();
+  } else {
+    alert("❌ " + data.message);
+  }
+} catch (error) {
+  console.error(error);
+  alert("🚫 Lỗi kết nối máy chủ!");
+}
+
+    return false;
+  }
+
+  async function handleLogin(e){
+    e.preventDefault();
+    const email = document.getElementById('emailLogin').value.trim().toLowerCase();
+    const pass  = document.getElementById('passLogin').value.trim();
+    try {
+  const res = await fetch("../api/api_login.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      Email: email,
+      MatKhau: pass
+    })
+  });
+
+  const data = await res.json();
+  if (data.status === "success") {
+    alert("🎉 Đăng nhập thành công!");
+    window.location.href = "index.html";
+  } else {
+    alert("❌ " + data.message);
+  }
+} catch (error) {
+  console.error(error);
+  alert("🚫 Lỗi kết nối máy chủ hoặc dữ liệu JSON sai định dạng!");
+}
+
+    return false;
+  }
+
+</script>
+</body>
+</html>

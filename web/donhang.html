@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đơn hàng - Pet's Home</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background:#fff8f0; }
+    .navbar { background:#8ad1eda9; }
+    .status-badge { font-size: .85rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">🐾 Pet's Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Trang chủ</a></li>
+        <li class="nav-item"><a class="nav-link" href="sanpham.html">Sản phẩm</a></li>
+        <li class="nav-item"><a class="nav-link" href="giohang.html">Giỏ hàng</a></li>
+        <li class="nav-item"><a class="nav-link" href="donhang.html">Đơn hàng</a></li>
+
+        <!-- Links ẩn/hiện theo vai trò -->
+        <li class="nav-item d-none" id="navCustomers"><a class="nav-link" href="khachhang.html">Khách hàng</a></li>
+        <li class="nav-item d-none" id="navAdmin"><a class="nav-link" href="quantri.html">Quản trị</a></li>
+
+        <!-- Đăng nhập/Đăng xuất -->
+        <li class="nav-item" id="navLogin"><a class="nav-link" href="dangnhap.html">Đăng nhập</a></li>
+        <li class="nav-item dropdown d-none" id="navUser">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="navUserName">Tài khoản</a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="donhang.html">Đơn hàng của tôi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="PetShop.logout(); location.href='index.html'">Đăng xuất</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<div class="container my-4">
+  <h3 class="mb-3">Đơn hàng</h3>
+
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-info">
+        <tr>
+          <th>Mã đơn</th>
+          <th>Khách hàng</th>
+          <th>Tổng tiền</th>
+          <th>Trạng thái</th>
+          <th>Thời gian</th>
+          <th>Chi tiết</th>
+        </tr>
+      </thead>
+      <tbody id="orderBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal chi tiết -->
+<div class="modal fade" id="orderModal" tabindex="-1">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Chi tiết đơn</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body" id="orderDetail"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+    </div>
+  </div></div>
+</div>
+
+<script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const user = PetShop.getCurrentUser();
+
+  function renderOrders(){
+    const orders = getLS("orders", []);
+    const list = PetShop.isCustomer()
+      ? orders.filter(o => o.customer?.email === user?.email)
+      : orders;
+
+    const tbd = document.getElementById("orderBody");
+    tbd.innerHTML = list.map(o=>{
+      const badge = (st)=>{
+        const map = { "Chờ xử lý":"bg-secondary", "Đang giao":"bg-warning text-dark", "Hoàn tất":"bg-success", "Hủy":"bg-danger" };
+        return `<span class="badge ${map[st]||'bg-secondary'}">${st}</span>`;
+      };
+
+      let statusCell = badge(o.status);
+      if (PetShop.isAdmin()) {
+        const opts = ["Chờ xử lý","Đang giao","Hoàn tất","Hủy"]
+          .map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join("");
+        statusCell = `<select class="form-select form-select-sm" onchange="PetShop.changeOrderStatus('${o.id}', this.value); renderOrders();">${opts}</select>`;
+      }
+
+      return `<tr>
+        <td>${o.id}</td>
+        <td>${o.customer?.name || "Khách lẻ"}</td>
+        <td>${PetShop.fmtVND(o.total)}</td>
+        <td>${statusCell}</td>
+        <td>${new Date(o.createdAt).toLocaleString("vi-VN")}</td>
+        <td><button class="btn btn-sm btn-primary" onclick="viewDetail('${o.id}')">Xem</button></td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="6">Chưa có đơn hàng.</td></tr>`;
+  }
+
+  function viewDetail(id){
+    const orders = getLS("orders", []);
+    const o = orders.find(x=>x.id===id);
+    if(!o) return;
+    const html = `
+      <div class="mb-2"><strong>Mã đơn:</strong> ${o.id}</div>
+      <div class="mb-2"><strong>Khách:</strong> ${o.customer?.name||"Khách lẻ"} • ${o.customer?.phone||""}</div>
+      <div class="mb-3"><strong>Địa chỉ:</strong> ${o.customer?.addr||""}</div>
+      <table class="table table-sm">
+        <thead><tr><th>Mã</th><th>Tên</th><th>SL</th><th>Giá</th><th>Thành tiền</th></tr></thead>
+        <tbody>${o.items.map(i=>`<tr><td>${i.id}</td><td>${i.name}</td><td>${i.quantity}</td><td>${PetShop.fmtVND(i.price)}</td><td>${PetShop.fmtVND(i.price*i.quantity)}</td></tr>`).join("")}</tbody>
+      </table>
+      <div class="text-end h5">Tổng: ${PetShop.fmtVND(o.total)}</div>
+    `;
+    document.getElementById("orderDetail").innerHTML = html;
+    new bootstrap.Modal(document.getElementById("orderModal")).show();
+  }
+
+  renderOrders();
+</script>
+
+
+</body>
+</html>

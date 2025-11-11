@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quản trị - Pet's Home</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style> 
+    /* TÔNG MÀU TƯƠI SÁNG & SẠCH */
+    :root {
+      --primary-color: #00b894; /* Xanh Ngọc */
+      --secondary-color: #ffc34d; /* Vàng Nắng */
+      --text-color: #2d3436;
+      --bg-light: #f1f8ff; 
+    }
+    body { background: #f7f9fb; color: var(--text-color); }
+    .navbar { 
+      background: var(--bg-light); 
+      box-shadow: 0 2px 4px rgba(0,0,0,.05);
+      border-bottom: 3px solid var(--primary-color);
+    }
+    .navbar-brand, .nav-link { color: var(--text-color) !important; }
+    
+    /* TIÊU ĐỀ TRANG */
+    .page-title { 
+        color: var(--primary-color); 
+        font-weight: 700; 
+        border-bottom: 3px solid var(--primary-color);
+        padding-bottom: 10px;
+        margin-bottom: 30px !important;
+        display: inline-block;
+    }
+    
+    /* STYLE RIÊNG CHO ADMIN CARDS */
+    .admin-card { 
+        background-color: white;
+        border-radius: 12px; 
+        padding: 25px; 
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08); 
+        margin-bottom: 35px; /* Tăng khoảng cách giữa các khối */
+    }
+    .admin-card h5 { 
+        color: var(--text-color); 
+        font-weight: 600;
+        border-bottom: 1px dashed #ddd; 
+        padding-bottom: 10px; 
+        margin-bottom: 20px; 
+    }
+    
+    /* STYLE INPUT/BUTTON */
+    .form-control, .form-select { border-radius: 6px; border-color: #ddd; }
+    .btn-action { background: var(--primary-color); color: white; }
+    
+    /* STYLE BẢNG PHÂN QUYỀN */
+    .table-warning { background-color: var(--secondary-color) !important; color: var(--text-color); }
+    .alert-warning { background-color: #ffeaa7; border-color: #fdcb6e; color: var(--text-color); }
+
+    /* FOOTER */
+    footer { 
+        background: var(--secondary-color); 
+        color: var(--text-color);
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="index.html">🐾 Pet's Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item"><a class="nav-link" href="index.html">Trang chủ</a></li>
+        <li class="nav-item"><a class="nav-link" href="sanpham.html">Sản phẩm</a></li>
+        <li class="nav-item"><a class="nav-link" href="giohang.html">Giỏ hàng</a></li>
+        <li class="nav-item"><a class="nav-link" href="donhang.html">Đơn hàng</a></li>
+
+        <li class="nav-item d-none" id="navCustomers"><a class="nav-link" href="khachhang.html">Khách hàng</a></li>
+        <li class="nav-item d-none" id="navAdmin"><a class="nav-link fw-bold" href="quantri.html">Quản trị</a></li>
+
+        <li class="nav-item" id="navLogin"><a class="nav-link" href="index.html">Đăng nhập</a></li>
+
+        <li class="nav-item dropdown d-none" id="navUser">
+          <a class="nav-link dropdown-toggle" href="#" id="navUserName" role="button" data-bs-toggle="dropdown">Tài khoản</a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="donhang.html">Đơn hàng của tôi</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="PetShop.logout(); location.href='index.html';">Đăng xuất</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="container my-5">
+  <h3 class="page-title">Bảng quản trị (Admin)</h3>
+
+  <div class="alert alert-warning" id="guard" style="display:none">
+    Bạn không có quyền truy cập trang này. Trang quản trị chỉ dành cho <strong>Quản trị viên (Admin)</strong>.
+  </div>
+
+  <div id="adminOnly" style="display:none">
+
+    <div id="adminWrap" class="admin-card">
+      <h5>Quản lý Sản phẩm</h5>
+      <div class="row g-2">
+        <div class="col-md-2"><input id="pid" class="form-control form-control-sm" placeholder="Mã (Pxxx)"></div>
+        <div class="col-md-3"><input id="pname" class="form-control form-control-sm" placeholder="Tên sản phẩm"></div>
+        <div class="col-md-2"><input id="pprice" type="number" class="form-control form-control-sm" placeholder="Giá bán"></div>
+        <div class="col-md-2"><input id="pstock" type="number" class="form-control form-control-sm" placeholder="Tồn"></div>
+        <div class="col-md-3"><input id="pimg" class="form-control form-control-sm" placeholder="Đường dẫn ảnh"></div>
+        <div class="col-12 d-flex gap-3 mt-3">
+          <button class="btn btn-sm btn-action" onclick="saveProduct()">Lưu/Thêm</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteProduct()">Xóa</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h5>Quản lý Kho</h5>
+      <div class="row g-2">
+        <div class="col-md-2"><input id="sid" class="form-control form-control-sm" placeholder="Mã SP"></div>
+        <div class="col-md-2"><input id="sq" type="number" class="form-control form-control-sm" placeholder="Số lượng"></div>
+        <div class="col-md-4"><input id="snote" class="form-control form-control-sm" placeholder="Ghi chú"></div>
+        <div class="col-md-4 d-flex gap-3">
+          <button class="btn btn-sm btn-success" onclick="PetShop.importStock(getVal('sid'), getNum('sq'), getVal('snote'))">Nhập</button>
+          <button class="btn btn-sm btn-warning text-dark" onclick="PetShop.exportStock(getVal('sid'), getNum('sq'), getVal('snote'))">Xuất</button>
+          <button class="btn btn-sm btn-danger" onclick="PetShop.destroyStock(getVal('sid'), getNum('sq'), getVal('snote'))">Hủy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h5>Báo cáo nhanh & Cảnh báo</h5>
+      <ul id="lowStock" class="mb-2 list-unstyled"></ul>
+      <div class="mt-1 fs-5">Doanh thu: <strong id="rev" style="color: var(--primary-color);">0đ</strong></div>
+    </div>
+
+    <div class="admin-card">
+      <h5>Phân quyền người dùng</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center">
+          <thead class="table-warning">
+            <tr>
+              <th>Tên</th>
+              <th>Email</th>
+              <th>Vai trò</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="userBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div></div>
+
+<footer class="text-center py-3 mt-5" style="background: var(--secondary-color); color: var(--text-color);">
+    © 2025 Pet's Home. All rights reserved 🐾
+</footer>
+
+<script src="app.js"></script>
+<script>
+  // ===== Guard trang: chỉ Admin mới được vào =====
+  const u = PetShop.getCurrentUser?.();
+  if (!PetShop.isAdmin()) {
+    document.getElementById('guard').style.display = 'block';
+    document.getElementById('adminOnly').style.display = 'none';
+  } else {
+    document.getElementById('guard').style.display = 'none';
+    document.getElementById('adminOnly').style.display = 'block';
+  }
+
+  // ===== Helpers lấy value/number từ input =====
+  const getVal = id => (document.getElementById(id)?.value || "").trim();
+  const getNum = id => parseInt(document.getElementById(id)?.value || "0", 10);
+
+  // ===== CRUD Sản phẩm (Admin) =====
+  function saveProduct(){
+    if (!PetShop.isAdmin()) return alert("Bạn không có quyền.");
+    const id = getVal('pid');
+    const name = getVal('pname');
+    const price = getNum('pprice');
+    const stock = getNum('pstock');
+    const img = getVal('pimg');
+    if(!id || !name) return alert("Vui lòng nhập Mã & Tên sản phẩm!");
+
+    const products = getLS("products", []);
+    const p = products.find(x=>x.id===id);
+    if (p) {
+      p.name = name; p.price = price; p.stock = stock; p.img = img || p.img;
+    } else {
+      products.push({
+        id, name,
+        brand:"", category:"Phụ kiện", target:"Chó", unit:"cái",
+        price, salePrice:null, stock, img, description:"", expiry:""
+      });
+    }
+    setLS("products", products);
+    alert("Đã lưu sản phẩm.");
+  }
+
+  function deleteProduct(){
+    if (!PetShop.isAdmin()) return alert("Bạn không có quyền.");
+    const id = getVal('pid'); if(!id) return alert("Nhập Mã sản phẩm để xóa!");
+    let products = getLS("products", []);
+    const before = products.length;
+    products = products.filter(x=>x.id!==id);
+    setLS("products", products);
+    alert(before===products.length ? "Không tìm thấy mã sản phẩm." : "Đã xóa sản phẩm.");
+  }
+
+  // ===== Báo cáo nhanh =====
+  function renderReport(){
+    const r = PetShop.computeReports();
+    document.getElementById('rev').textContent = PetShop.fmtVND(r.revenue);
+    document.getElementById('lowStock').innerHTML = r.stockLow.length
+      ? r.stockLow.map(x=>`<li><span class="badge bg-danger me-2">!</span>${x.id} - ${x.name}: ${x.stock}</li>`).join("")
+      : "<li>Không có cảnh báo tồn thấp</li>";
+  }
+
+  // ===== Phân quyền người dùng (Admin) =====
+  function renderUsers(){
+    if (!PetShop.isAdmin()) return;
+    const users = getLS("registeredUsers", []);
+    document.getElementById("userBody").innerHTML = users.map((u,i)=>`
+      <tr>
+        <td>${u.name}</td>
+        <td>${u.email}</td>
+        <td>
+          <select class="form-select form-select-sm" id="role_${i}">
+            <option ${u.role==='customer'?'selected':''} value="customer">Khách hàng</option>
+            <option ${u.role==='staff'?'selected':''} value="staff">Nhân viên bán hàng</option>
+            <option ${u.role==='admin'?'selected':''} value="admin">Quản trị</option>
+          </select>
+        </td>
+        <td><button class="btn btn-sm btn-action" onclick="saveRole(${i})" style="background:var(--primary-color); color:white;">Lưu</button></td>
+      </tr>
+    `).join("") || `<tr><td colspan="4"><div class="alert alert-light my-3">Chưa có người dùng.</div></td></tr>`;
+  }
+
+  function saveRole(idx){
+    if (!PetShop.isAdmin()) return alert("Bạn không có quyền.");
+    const users = getLS("registeredUsers", []);
+    const sel = document.getElementById("role_"+idx);
+    users[idx].role = sel.value;
+    setLS("registeredUsers", users);
+    alert("Đã cập nhật vai trò người dùng.");
+  }
+
+  // ===== Khởi tạo khi vào trang =====
+  if (PetShop.isAdmin()) {
+    renderReport();
+    renderUsers();
+  }
+</script>
+</body>
+</html>
